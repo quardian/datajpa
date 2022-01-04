@@ -1,0 +1,35 @@
+1. [build.gralde]
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+2. [resources/application.yaml]
+
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/datajpa
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create  #<property name="hibernate.hbm2ddl.auto" value="create" />
+    properties:
+      #show_sql: true    # <property name="hibernate.show_sql" value="true" />
+      format_sql: true  # <property name="hibernate.format_sql" value="true" />
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace
