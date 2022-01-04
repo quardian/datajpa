@@ -21,7 +21,7 @@ class MemberRepositoryTest {
     @Rollback(false)
     @Test
     void testMember() {
-        Member member = new Member("이인호");
+        Member member = new Member("이인호", 30);
         Member savedMember = memberRepository.save(member);
         Optional<Member> findMember = memberRepository.findById(1L);
         assertThat(savedMember).isEqualTo(findMember.get());

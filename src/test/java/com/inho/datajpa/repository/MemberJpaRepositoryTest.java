@@ -20,7 +20,7 @@ class MemberJpaRepositoryTest {
 
     @Test
     void testMember() {
-        Member member = new Member("Name1");
+        Member member = new Member("Name1", 20);
         Member savedMember = memberJpaRepository.save(member);
         Member findMember = memberJpaRepository.find(1L);
 

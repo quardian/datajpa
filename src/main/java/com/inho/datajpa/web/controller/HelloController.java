@@ -1,4 +1,4 @@
-package com.inho.datajpa.web.controoler;
+package com.inho.datajpa.web.controller;
 
 import com.inho.datajpa.entity.Member;
 import com.inho.datajpa.repository.MemberRepository;
@@ -20,7 +20,7 @@ public class HelloController {
 
     @GetMapping
     public ResponseEntity<Member> hello(){
-        Member member = new Member("Name1");
+        Member member = new Member("Name1", 10);
         Member savedMember = memberRepository.save(member);
         Optional<Member> findMember = memberRepository.findById(1L);
 
