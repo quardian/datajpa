@@ -94,4 +94,16 @@ public class MemberJpaRepository {
                 .setParameter("age", age)
                 .getSingleResult();
     }
+
+    // JPA를 사용한 벌크성 수정 쿼리
+    public int bulkAgePlus(int age)
+    {
+        String qlString = "update Member m set m.age = m.age + 1 where m.age >= :age";
+
+        int affected = em.createQuery(qlString)
+                .setParameter("age", age)
+                .executeUpdate();
+
+        return affected;
+    }
 }

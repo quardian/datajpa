@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -43,4 +44,9 @@ public interface MemberRepository extends JpaRepository<Member, Long>
             ,countQuery = "select count(m) from Member m where m.age = :age"
     )
     Page<Member> findCustomPageByAge(@Param("age") int age, Pageable pageable);
+
+    // [09] bulk update : @Modifying 애노테이션이 있어야 JPA의 executeUpdate() 메소드 호출함.
+    @Modifying(clearAutomatically = true)
+    @Query( value = "update Member m set m.age = m.age + 1 where m.age >= :age")
+    int bulkAgePlus(@Param("age") int age);
 }
