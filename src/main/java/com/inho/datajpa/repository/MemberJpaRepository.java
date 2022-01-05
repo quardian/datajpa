@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,14 @@ public class MemberJpaRepository {
         em.persist(member);
         return member;
     }
+
+    public void saveAll( Collection<Member> members)
+    {
+        for (Member member : members) {
+            em.persist(member);
+        }
+    }
+
 
     public void delete(Member member)
     {
@@ -67,5 +76,22 @@ public class MemberJpaRepository {
         return query
                 .setParameter("username", username)
                 .getResultList();
+    }
+
+    public List<Member> findByPage(int age, int offset, int limit){
+        String qlString = "select m from Member m where m.age = :age " +
+                          " order by m.username desc ";
+        return em.createQuery(qlString, Member.class)
+                .setParameter("age", age)
+                .setFirstResult(offset)
+                .setMaxResults(limit)
+                .getResultList();
+    }
+
+    public long totalCount(int age){
+        String qlString = "select count(m) from Member m where m.age = :age ";
+        return em.createQuery(qlString, Long.class)
+                .setParameter("age", age)
+                .getSingleResult();
     }
 }
