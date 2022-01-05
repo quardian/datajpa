@@ -1,0 +1,34 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│ 반환 타입                                                              │
+┕──────────────────────────────────────────────────────────────────────┙
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+    1. Spring Data JPA는 유연한 반환 타입 지원
+
+        // 컬렉션
+        List<Member> findByUsername(String name);
+
+        // 단건조회
+        Member findByUsername(String name);
+
+        // 단건조회 - 옵션널
+        Optional<Member> findByUsername(String name);
+
+    2. 조회 결과가 많거나 없으면?
+
+        - 컬렉션
+            . 결과없음      : 빈 컬렉션 반환
+
+        - 단건조회
+            . 결과없음      : null 반환
+            . 결과2건 이상  : javax.persistence.NonUniqueResultException
+
+            단건 지정한 메소드는 Spring Data JPA 내부에서 JPQL의
+            query.getSingleResult() 메소드 호출한다.
+            이 메소드는 결과가 없으면 NoResultException을 발생 시키는데
+            Spring Data JPA이 이경우에 예외를 무시하고 null 반환 처리해줌
+
+
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙

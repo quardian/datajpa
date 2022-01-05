@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface MemberRepository extends JpaRepository<Member, Long>
@@ -22,4 +23,7 @@ public interface MemberRepository extends JpaRepository<Member, Long>
     @Query("select m from Member m where m.username = :username and m.age = :age")
     List<Member> findByUsernameAndAge(String username, int age);
 
+    // [04] Collection 타입으로 in 쿼리
+    @Query("select m from Member m where m.username in :names")
+    List<Member> findByNames(@Param("names") Collection<String> names);
 }

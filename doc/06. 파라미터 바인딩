@@ -1,0 +1,22 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│  파라미터 바인딩                                                        │
+┕──────────────────────────────────────────────────────────────────────┙
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+    1. 위치 기반
+
+        select m from Member m where m.username = ?1
+
+    2. 이름 기반
+
+        select m from Member m where m.username = :username
+
+    3. 컬렉션 파라미터 바인딩
+        - Collection 타입으로 in 절에 넣음
+
+        @Query("select m from Member m where m.username in :names")
+        List<Member> findByNames(@Param("names") List<String> names);
+
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙
