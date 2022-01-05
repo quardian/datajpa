@@ -11,6 +11,7 @@ import java.util.Objects;
 
 @Entity
 @SequenceGenerator(name="MEMBER_ID_SEQ_GENERATOR", sequenceName = "MEMBER_ID_SEQ", initialValue = 1, allocationSize = 1)
+@NamedQuery( name="Member.findByUsername", query="select m from Member m where m.username = :username")
 public class Member
 {
     @Id

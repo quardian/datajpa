@@ -1,0 +1,136 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│ Query Methods(쿼리 메소드) 기능                                         │
+┕──────────────────────────────────────────────────────────────────────┙
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+    1. 쿼리 메소드 기능 3 가지
+        - 메소드 이름으로 쿼리 생성
+        - 메소드 이름으로 JPA NamedQuery 호출
+        - @Query 어노테이션을 사용해서 Repository Interface에 쿼리 직접 정의
+
+
+    2. method 이름으로 쿼리 생성
+        - 조회       : find...By, read...By, query...By, get...By
+                        예) findHelloBy 처림 ...에 식별하기 위한 설명이 들어가도 된다. (By 뒤에 컴럼명 없으면 전체 조회 )
+        - COUNT     : count...By    반환타입 long
+        - EXISTS    : exists...By   반환타입 boolean
+        - DELETE    : delete...By, remove...By  반환타입 long
+        - DISTINCT  : findDistinct, findMemberDistinctBy
+        - LIMIT     : findFirst3, findFirst, findTop, findTop3
+
+
+        - Distinct
+            . findDistinctBylastname
+                ==> select distinct .. where x.lastname=1?
+        - And
+            . findByLastnameAndFirstname
+                ==> .. where x.lastname= ?1 and x.firstname= ?2
+        - Or
+            . findByLastnameOrFirstname
+                ==> .. where x.lastname= ?1 or x.firstname= ?2
+        - Is, Equals
+            . findByByFirstname, findByFirstnameIs, findByFirstnameEquals
+                ==> .. where x.firstname = ?1
+        - Between
+            . findByStartDateBetween
+                ==> .. where x.startDate between ?1 and ?2
+        - LessThan
+            . findByAgeLessThan
+                ==> .. where x.age < ?1
+        - LessThenEqual
+            . findByAgeLessThenEqual
+                ==> .. where x.age <= ?1
+        - GreaterThan
+            . findByAgeGreaterThan
+                ==> .. where x.age > ?1
+        - GreaterThanEqual
+            . findByAgeGreaterThanEqual
+                ==> .. where x.age >= ?1
+        - After
+            . findByStartDateAfter
+                ==> .. where x.startDate > ?1
+        - Before
+            . findByStartDateBefore
+                ==> .. where x.startDate < ?1
+        - IsNull, Null
+            . findByAge(Is)Null
+                ==> .. where x.age is null
+        - IsNotNull, NotNull
+            . findByAge(Is)NotNull
+                ==> .. where x.age is not null
+        - Like
+            . findByFirstnameLike
+                ==> .. where x.firstname like ?1
+        - NotLike
+            . findByFirstnameNotLike
+                ==> .. where x.firstname not like ?1
+        - StartingWith
+            . findByFirstnameStartingWith
+                ==> .. where x.firstname like ?1 | '%' ( 파라메타 뒤에 % 붙임 )
+        - StartingWith
+            . findByFirstnameEndingWith
+                ==> .. where x.firstname like '%' | ?1 ( 파라메타 앞에 % 붙임 )
+        - Containing
+            . findByFirstnameContaining
+                ==>  .. where x.firstname like '%' | ?1 | '%' ( 파라메타 앞/뒤에 % 붙임 )
+        - OrderBy
+            . findByAgeOrderByLastnameDesc
+                ==> .. where x.age=?1 order by x.lastname desc
+        - Not
+            . findByLastnameNot
+                ==> .. where x.lastName <> ?1
+        - In
+            . findByAgeIn(Collection<Age> ages)
+                ==> .. where x.age in ?1
+        - NotIn
+            . findByAgeNotIn(Collection<Age> ages)
+                ==> .. where x.age not in ?1
+        - True
+            . findByActiveTrue()
+                ==> .. where x.active = true
+        - True
+            . findByActiveFalse()
+                ==> .. where x.active = false
+        - IgnoreCase
+            . findByFirstnameIgnoreCase
+                ==> .. where UPPER(x.firstname) = UPPER(?1)
+        - Top, First : 쿼리결과 제약
+            . findTop10OrderByLastnameAsc()
+
+
+
+    3. 메소드 이름으로 JPA NamedQuery 호출 ( 실무에서는 Respository interface에 직접 쿼리 작성 )
+        - JPA의 NamedQuery를 호출할 수 있음
+        - NamedQuery의 장점은 컴파일 시점에 JPQL 문법오류 검출
+          ( JPQL 을 미리 파싱하여 SQL로 변환하여 갖고 있음 )
+
+        * @NamedQuery 어노테이션으로 Named 쿼리 정의
+            @Entity
+            @NamedQuery( name="Member.findByUsername", query="select m from Member m where m.username = :username")
+            public class Member {
+                ...
+            }
+
+        * JPA를 직접 사용해서 Named 쿼리 호출
+            public class MemberRepository {
+
+                public List<Member> findByUsername(String username) {
+                    return em.createNamedQuery("Member.findByUsername", Member.class)
+                            .setParameter("username", "회원1")
+                            .getResultList();
+                }
+            }
+
+
+    4. @Query 어노테이션을 사용해서 Repository Interface 에 쿼리 직접 정의
+        - 이름없는 NamedQuery
+
+        public interface MemberRepository extends JpaRepository<Member, Long>
+        {
+            @Query( value= "select m from Member m where m.username = :username and m.age = :age" )
+            List<Member> findUser(String username, int age);
+        }
+
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙

@@ -61,6 +61,9 @@ class MemberJpaRepositoryTest {
         // U 검증
         member1.changeUserName("회원1");
 
+        List<Member> aaa = memberJpaRepository.findByUsernameAndAgeGreaterThan("회원1", 5);
+        assertThat(aaa.size()).isEqualTo(1);
+
         // R 검증
         long count = memberJpaRepository.count();
         assertThat(count).isEqualTo(1);

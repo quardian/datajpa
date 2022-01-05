@@ -36,16 +36,15 @@ public class MemberJpaRepository {
         return Optional.ofNullable(member);
     }
 
-    public List<Member> findMyUsername(String username)
+    public List<Member> findByUsernameAndAgeGreaterThan(String username, int age)
     {
-        String qlString = "select m from Member m where m.username = :username";
+        String qlString = "select m from Member m where m.username = :username and m.age > :age";
         TypedQuery<Member> query = em.createQuery(qlString, Member.class);
         return query
                 .setParameter("username", username)
+                .setParameter("age", age)
                 .getResultList();
     }
-
-
 
     public List<Member> findAll()
     {
@@ -61,4 +60,12 @@ public class MemberJpaRepository {
         return query.getSingleResult();
     }
 
+    // NamedQuery 이용
+    public List<Member> findByUsername(String username)
+    {
+        TypedQuery<Member> query = em.createNamedQuery("Member.findByUsername", Member.class);
+        return query
+                .setParameter("username", username)
+                .getResultList();
+    }
 }
