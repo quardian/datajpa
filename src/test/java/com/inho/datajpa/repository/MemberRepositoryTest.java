@@ -1,9 +1,14 @@
 package com.inho.datajpa.repository;
 
 import com.inho.datajpa.entity.Member;
+import com.inho.datajpa.web.dto.MemberDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +73,129 @@ class MemberRepositoryTest {
 
     }
 
+    @Test
+    void paging()
+    {
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 10);
+        Member member3 = new Member("member3", 10);
+        Member member4 = new Member("member4", 10);
+        Member member5 = new Member("member5", 10);
+
+        memberRepository.saveAll(Arrays.asList(member1, member2, member3, member4, member5));
+
+        int age = 10;
+        final int limit = 3;
+        int requestPage = 1;
+
+        // Spring Data JPA 는 페이지를 0번 부터 시작함
+        Sort.Order usernameDesc = Sort.Order.desc("username");
+        Sort.Order idAsc = Sort.Order.asc("id");
+
+        PageRequest pageable = PageRequest.of((requestPage-1), limit,  Sort.by(usernameDesc, idAsc));
+
+        Page<Member> page    = memberRepository.findPageByAge(age, pageable);
+
+        long totalElements      = page.getTotalElements();
+        List<Member> members    = page.getContent();
+        int totalPages          = page.getTotalPages();
+        int number              = page.getNumber() + 1;
+        boolean isFirst         = page.isFirst();
+        boolean isLast          = page.isLast();
+        boolean hasNext         = page.hasNext();
+
+        System.out.println("totalElements = " + totalElements);
+        System.out.println("pageItemCount = " + members.size());
+        System.out.println("totalPages = " + totalPages);
+        System.out.println("number = " + number);
+        System.out.println("isFirst = " + isFirst);
+        System.out.println("isLast = " + isLast);
+        System.out.println("hasNext = " + hasNext);
+    }
+
+    @Test
+    void slice()
+    {
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 10);
+        Member member3 = new Member("member3", 10);
+        Member member4 = new Member("member4", 10);
+        Member member5 = new Member("member5", 10);
+
+        memberRepository.saveAll(Arrays.asList(member1, member2, member3, member4, member5));
+
+        int age = 10;
+        final int limit = 3;
+        int requestPage = 2;
+
+        // Spring Data JPA 는 페이지를 0번 부터 시작함
+        Sort.Order usernameDesc = Sort.Order.desc("username");
+        Sort.Order idAsc = Sort.Order.asc("id");
+
+        PageRequest pageable = PageRequest.of((requestPage-1), limit,  Sort.by(usernameDesc, idAsc));
+
+        Slice<Member> page    = memberRepository.findSliceByAge(age, pageable);
+
+        //long totalElements      = page.getTotalElements();
+        List<Member> members    = page.getContent();
+        //int totalPages          = page.getTotalPages();
+        int number              = page.getNumber() + 1;
+        boolean isFirst         = page.isFirst();
+        boolean isLast          = page.isLast();
+        boolean hasNext         = page.hasNext();
+
+        System.out.println("pageItemCount = " + members.size());
+        System.out.println("number = " + number);
+        System.out.println("isFirst = " + isFirst);
+        System.out.println("isLast = " + isLast);
+        System.out.println("hasNext = " + hasNext);
+
+
+    }
+
+    @Test
+    void customQueryPaging()
+    {
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 10);
+        Member member3 = new Member("member3", 10);
+        Member member4 = new Member("member4", 10);
+        Member member5 = new Member("member5", 10);
+
+        memberRepository.saveAll(Arrays.asList(member1, member2, member3, member4, member5));
+
+        int age = 10;
+        final int limit = 3;
+        int requestPage = 1;
+
+        // Spring Data JPA 는 페이지를 0번 부터 시작함
+        Sort.Order usernameDesc = Sort.Order.desc("username");
+        Sort.Order idAsc = Sort.Order.asc("id");
+
+        PageRequest pageable = PageRequest.of((requestPage-1), limit,  Sort.by(usernameDesc, idAsc));
+
+        Page<Member> page    = memberRepository.findCustomPageByAge(age, pageable);
+
+        // Entity to Dto convert
+        Page<MemberDto> map = page.map(m -> new MemberDto(m.getId(), m.getUsername(), m.getAge(), null));
+        System.out.println("map = " + map);
+
+        long totalElements      = page.getTotalElements();
+        List<Member> members    = page.getContent();
+        int totalPages          = page.getTotalPages();
+        int number              = page.getNumber() + 1;
+        boolean isFirst         = page.isFirst();
+        boolean isLast          = page.isLast();
+        boolean hasNext         = page.hasNext();
+
+        System.out.println("totalElements = " + totalElements);
+        System.out.println("pageItemCount = " + members.size());
+        System.out.println("totalPages = " + totalPages);
+        System.out.println("number = " + number);
+        System.out.println("isFirst = " + isFirst);
+        System.out.println("isLast = " + isLast);
+        System.out.println("hasNext = " + hasNext);
+    }
 
 
 }

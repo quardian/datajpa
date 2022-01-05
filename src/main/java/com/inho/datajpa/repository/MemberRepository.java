@@ -1,10 +1,12 @@
 package com.inho.datajpa.repository;
 
 import com.inho.datajpa.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,4 +28,19 @@ public interface MemberRepository extends JpaRepository<Member, Long>
     // [04] Collection 타입으로 in 쿼리
     @Query("select m from Member m where m.username in :names")
     List<Member> findByNames(@Param("names") Collection<String> names);
+
+    // [05] Paging ( count 쿼리 포함 )
+    Page<Member> findPageByAge(int age, Pageable pageable);
+
+    // [06] Pageing-Slice
+    Slice<Member> findSliceByAge(int age, Pageable pageable);
+
+    // [07] Pageing-List
+    List<Member> findListByAge(int age, Pageable pageable);
+
+    // [08] 사용자가 정의한 쿼리 ( Sort, Paging ==> Spring Data JPA가 처리함 )
+    @Query(  value="select m from Member m left join m.team t where m.age = :age"
+            ,countQuery = "select count(m) from Member m where m.age = :age"
+    )
+    Page<Member> findCustomPageByAge(@Param("age") int age, Pageable pageable);
 }
