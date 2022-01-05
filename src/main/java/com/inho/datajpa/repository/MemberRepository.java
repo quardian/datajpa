@@ -4,6 +4,7 @@ import com.inho.datajpa.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -49,4 +50,13 @@ public interface MemberRepository extends JpaRepository<Member, Long>
     @Modifying(clearAutomatically = true)
     @Query( value = "update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    // [10] fetch join with JPA
+    @Query( "select m from Member m inner join fetch m.team ")
+    List<Member> findFetchAll();
+
+    // [11] fetch join with EntityGraph supported Spring DATA Jpa
+    //@EntityGraph(attributePaths = {"team"} )
+    @EntityGraph( value="Member.all" )
+    List<Member> findFetchById(Long id);
 }

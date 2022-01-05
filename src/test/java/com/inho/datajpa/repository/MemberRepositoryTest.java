@@ -1,6 +1,7 @@
 package com.inho.datajpa.repository;
 
 import com.inho.datajpa.entity.Member;
+import com.inho.datajpa.entity.Team;
 import com.inho.datajpa.web.dto.MemberDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +26,12 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    TeamRepository teamRepository;
+
+    @PersistenceContext
+    EntityManager em;
 
     @Transactional
     @Rollback(false)
@@ -197,5 +206,30 @@ class MemberRepositoryTest {
         System.out.println("hasNext = " + hasNext);
     }
 
+    @Transactional
+    @Rollback(false)
+    @Test
+    public void findMemberLazy() throws Exception
+    {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
 
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        memberRepository.save( new Member("member1", 10, teamA ));
+        memberRepository.save( new Member("member2", 20, teamB ));
+
+        em.flush();
+        em.clear();
+
+        List<Member> members = memberRepository.findFetchById(1L);
+
+        for (Member member : members){
+            System.out.println("member.getUsername() = " + member.getUsername());
+            // N+1 문제 발생
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+    }
 }
