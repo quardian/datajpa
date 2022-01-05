@@ -47,7 +47,7 @@ class MemberTest {
         em.clear();
 
         // 확인
-        String qlString = "select m from Member m";
+        String qlString = "select m from Member m ";
         TypedQuery<Member> query = em.createQuery(qlString, Member.class);
         List<Member> members = query.getResultList();
         for (Member member : members) {

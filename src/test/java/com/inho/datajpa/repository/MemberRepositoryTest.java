@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,4 +29,39 @@ class MemberRepositoryTest {
 
     }
 
+    @Test
+    void basicCRUD(){
+
+        System.out.println( "memberRepository=" + memberRepository.getClass() );
+
+        Member member1 = new Member("member1", 10);
+        Member member2 = new Member("member2", 20);
+
+        // C 검증
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        // R 검증
+        Optional<Member> optFindMember1 = memberRepository.findById(member1.getId());
+        Optional<Member> optFindMember2 = memberRepository.findById(member2.getId());
+
+        assertThat(member1).isEqualTo( optFindMember1.get() );
+        assertThat(member2).isEqualTo( optFindMember2.get() );
+
+        // R 검증
+        List<Member> members = memberRepository.findAll();
+        assertThat(members.size()).isEqualTo(2);
+
+        // D 검증
+        //memberJpaRepository.delete(member1);
+        memberRepository.delete(member2);
+
+        // U 검증
+        member1.changeUserName("회원1");
+
+        // R 검증
+        long count = memberRepository.count();
+        assertThat(count).isEqualTo(1);
+
+    }
 }

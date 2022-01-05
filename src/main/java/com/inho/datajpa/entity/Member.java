@@ -3,6 +3,7 @@ package com.inho.datajpa.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter @Setter(AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor
@@ -43,6 +44,11 @@ public class Member
         }
     }
 
+    public void changeUserName(String name)
+    {
+        this.setUsername(name);
+    }
+
     public Member(String username, int age) {
         this.username = username;
         this.age = age;
@@ -52,5 +58,18 @@ public class Member
         this.username = username;
         this.age = age;
         this.changeTeam(team);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return getAge() == member.getAge() && Objects.equals(getId(), member.getId()) && Objects.equals(getUsername(), member.getUsername()) && Objects.equals(getTeam(), member.getTeam());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUsername(), getAge(), getTeam());
     }
 }

@@ -1,0 +1,112 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+    [Spring Data] 공통------------------
+                    Repository                  <<interface>> (Marker Interface)
+                        △
+                        |
+                    CrudRepository              <<interface>>
+                        △
+                        |
+                    PagingAndSortingRepository  <<interface>>
+[Spring Data JPA]------------------
+                        △
+                        |
+                    JpaRepository               <<interface>
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙
+
+1. 제네릭 타입
+    - T     : Entity 타입
+    - ID    : Entity Identity 타입
+    - S     : Entity와 그 자식 타입
+
+2. 주요 메서드
+    - save(S)       : 새로운 entity 저장하고 이미 있는 entity 병합.
+    - delete(T)     : entity 하나 삭제. 내부에서 em.remove() 호출
+    - findById(ID)  : entity 하나 조회. 내부에서 em.find() 호출
+    - getById(ID)   : entity 프록시 조회. 내부에서 em.getReference() 호출
+                      기존 getOne()은 deprecated 됨.
+    - findAll(...)  : 모든 entity 조회,
+                      정렬(Sort)나 페이징(Pageable) 조건을 파라미터로 제공할 수 있다.
+    ** JpaRepository는 대부분의 공통 메소드를 제공한다.
+
+
+public JpaRepository<T, ID> extends PagingAndSortingRepository<T, ID>,
+                                    QueryByExampleExecutor<T> {
+    List<T> findAll();
+    List<T> findAll(Sort sort);
+    List<T> findAllById(Iterable<ID> ids);
+
+    <S extends T> List<S> findAll(Example<S> example);
+    <S extends T> List<S> findAll(Example<S> example, Sort sort);
+
+	@Deprecated T getOne(ID id);
+    T getById(ID id);
+
+    <S extends T> List<S> saveAll(Iterable<S> entities);
+    <S extends T> List<S> saveAllAndFlush(Iterable<S> entities);
+
+    <S extends T> S saveAndFlush(S entity);
+
+    void deleteInBatch(Iterable<T> entities){deleteAllInBatch(entities);}
+    void deleteAllInBatch(Iterable<T> entities);
+    void deleteAllByIdInBatch(Iterable<ID> ids);
+    void deleteAllInBatch();
+
+    void flush();
+}
+
+
+public interface PagingAndSortingRepository<T, ID> extends CrudRepository<T, ID> {
+    Iterable<T> findAll(Sort sort);
+    Page<T> findAll(Pageable pageable);
+}
+
+public static class Order implements Serializable {
+		private final Direction direction;
+		private final String property;
+		private final boolean ignoreCase;
+		private final NullHandling nullHandling;
+}
+
+public interface CrudRepository<T, ID> extends Repository<T, ID> {
+    <S extends T> S save(S entity)
+    <S extends T> Iterable<S> saveAll(Iterable<S> entities);
+
+    boolean existsById(ID id);
+
+    Iterable<T> findAll();
+    Optional<T> findById(ID id);
+    Iterable<T> findAllById(Iterable<ID> ids);
+    long count();
+
+    void deleteById(ID id);
+    void delete(T entity);
+    void deleteAllById(Iterable<? extends ID> ids);
+    void deleteAll(Iterable<? extends T> entities);
+    void deleteAll();
+}
+
+@Indexed
+public interface Repository<T, ID> {
+
+}
+
+public interface QueryByExampleExecutor<T> {
+    <S extends T> Optional<S> findOne(Example<S> example);
+
+}
+
+public interface Example<T> {
+
+    static <T> Example<T> of(T probe) {
+    		return new TypedExample<>(probe, ExampleMatcher.matching());
+    	}
+
+    static <T> Example<T> of(T probe, ExampleMatcher matcher) {
+            return new TypedExample<>(probe, matcher);
+        }
+}
