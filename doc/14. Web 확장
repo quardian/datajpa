@@ -1,0 +1,101 @@
+
+┌──────────────────────────────────────────────────────────────────────┐
+│ Web 확장                                                              │
+┕──────────────────────────────────────────────────────────────────────┙
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+    ────────────────────────────────────────────────────────────────────
+    1. Web 확장 - 도메인 클래스 컨버터
+    ────────────────────────────────────────────────────────────────────
+        - HTTP 파라미터로 넘어온 엔티티의 아이디로 엔티티 객체를 찾아서 바인딩
+
+        * 도메인 클래스 컨버터 사용 전
+            @RestController
+            @RequiredArgsConstructor
+            public class MemberController
+            {
+                private final MemberRepository memberRepository;
+
+                @GetMapping("/members/{id}")
+                public String findMember(@PathVariable("id") Long id){
+                    Member member = memberRepository.findById(id).get();
+                    return member.getUsername();
+                }
+            }
+
+        * 도메인 클래스 컨버터 사용 ( Entity의 ID인 경우 entity 바로 조회해서 주입해줌 )
+            @RestController
+            @RequiredArgsConstructor
+            public class MemberController
+            {
+                private final MemberRepository memberRepository;
+
+                @GetMapping("/members/{id}")
+                public String findMember(@PathVariable("id") Member member){
+                    return member.getUsername();
+                }
+            }
+
+    ────────────────────────────────────────────────────────────────────
+    2. Web 확장 - 페이징과 정렬
+    ────────────────────────────────────────────────────────────────────
+        - 스프링 데이터가 제공하는 페이징과 정렬 기능을 스프링 MVC에서 편리하게 사용
+
+        - 페이징과 정렬 예제
+
+          @GetMapping("/members")
+          public Page<Member> list(Pageable pageable) {
+                Page<Member> page = memberRepository.findAll(pageable);
+                return page;
+          }
+        - 파라미티로 'Pageable'을 받을 수 있다.
+          org.springframework.data.domain.PageRequest 구현 클래스 객체 생성
+
+        - 요청 파라미터
+            . page  : 현재 페이지 (0 부터 시작)
+            . size  : 한 페이지에 노출할 건수
+            . sort  : 정렬 조건 정의
+                      예) 정렬 속성, 정렬 속성...(ASC|DDESC)
+                         정렬 방향 변경 하고 싶으면, sort 파라미터 추가
+                        http://localhost:8080/members?size=10&page=0&sort=id,desc&sort=username,asc
+
+        - 기본값 글러벌 설정 ( 스프링 부트 )
+            [application.yml]
+                spring.data.web.pageable.default-page-size=20       /* 기본 페이지 사이즈 */
+                spring.data.web.pageable.max-page-size=2000         /* 최대 페이지 사이즈 */
+        - 기본값 개별설정
+                @RquestMapping("/members_page")
+                public String list(@PageableDefault(size=10, sort="username", direction=Sort.Direction.DESC) Pageable pageable)
+                {
+                    ...
+                }
+        - 접두사
+            . 페이징 정보가 둘 이상이면, 접두사로 구분
+            . @Qualifier 에 접두사명 추가 "{접수다명}_xxx"
+            . 예제) /members?member_page=0&order_page=1
+            public String list (
+                @Qualifier("member") Pageable memberPageable,
+                @Qualifier("order") Pageable orderPageable, ....
+            )
+
+    ** Entity를 DTO로 변환
+
+        Page<Member> page = memberRepository.findAll(pageable);
+
+        return page.map(m-> new MemberDto(  m.getId(),
+                                            m.getUsername(),
+                                            m.getAge(),
+                                            null
+                                          ));
+
+
+        - Page를 1 부터 시작하기
+            . 스프링 데이터는 Page를 0 부터 시작한다.
+            1) Pageable, Page를 파라미터아 응답값으로 사용하지 않고, 직접 클래스를 만들어 처리
+            2) spring.data.web.pageable.one-indexted-parameters를 true 설정
+               그런데 이 방법은 web에서 page 파라미터를 -1 처리할 뿐이다.
+               따라서 응답값인 Page에 모두 0 페이지 인덱스를 사용하는 한계가 있다.
+
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙
