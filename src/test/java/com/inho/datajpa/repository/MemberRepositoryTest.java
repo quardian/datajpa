@@ -232,4 +232,21 @@ class MemberRepositoryTest {
         }
 
     }
+
+    @Transactional
+    @Rollback(false)
+    @Test
+    void queryHint() throws Exception{
+        memberRepository.save ( new Member("member1", 10) );
+        em.flush();
+        em.clear();
+
+        //
+        Member member = memberRepository.findReadOnlyByUsername("member1");
+        member.changeUserName("member2");
+
+        Optional<Member> findMember = memberRepository.findById(1L);
+
+        em.flush(); // update query 실행 X
+    }
 }
