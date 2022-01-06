@@ -1,0 +1,68 @@
+┌──────────────────────────────────────────────────────────────────────┐
+│ 사용자 정의 리포지토리 구현                                               │
+┕──────────────────────────────────────────────────────────────────────┙
+
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+    1. Custom Repository 구현
+
+        - Spring DATA JPA 레포지토리는 인터페이스만 정의하고
+            구현체는 스프링이 자동 생성한다.
+
+        - Spring DATA JPA가 제공하는 인터페이스를 직접 구현하면,
+            인터페이스 상속해야 하므로 구현해야 하는 기능이 너무 많음
+
+        - 다양한 이유로 인터페이스의 메서드를 직접 구현하고 싶다면?
+            . JPA 직접 사용 ( EntityManager )
+            . 스프링 JDBC Template 사용
+            . MyBatis 사용
+            . 데이터베이스 커넥션 직접 사용
+
+        1) 사용자 정의 인터페이스
+            public interface MemberRepositoryCustom {
+                List<Member> findMemberCustom();
+            }
+
+        2) 사용자 정의 인터페이스 구현 클래스
+            - 사용자 정의 구현체 이름 규칙 : MemberRepository + 'Impl'
+            - Impl 이름을 변경하고 싶은경우, JavaConfig 설정으로 변경 가능
+
+                @EnableJpaRepositories(basePackages = "com.inho.repositories",
+                                   repositoryImplementationPostfix = "Impl")
+
+            - 예)
+            @Slf4j
+            @RequiredArgsConstructor
+            public class MemberRepositoryImpl implements MemberRepositoryCustom {
+
+                private final EntityManager em;
+
+                @Override
+                public List<Member> findMemberCustom() {
+                    return em.createQuery("select m from Member m")
+                            .getResultList();
+                }
+            }
+
+        3) 사용자 구현 인터페이스 상속 추가
+            - 인터페이스 상속 추가 시,
+               Java의 기능은 아니나, 스프링 데이터가 MemberRepositoryCustom 구현체를 같이 합침
+
+            public interface MemberRepository
+                            extends JpaRepository<Member, Long>, MemberRepositoryCustom
+
+        **
+            MemberRepositoryCustom
+                - MemberRepositoryImpl
+            MemberRepository extends MemberRepositoryCustom
+                - Spring Data 자동생성 구현체
+
+
+    ** 참고:
+        항상 사용자 정의 리포지토리가 필요한 것은 아니다.
+        그냥 임의의 리포지토리를 만들어도 된다.
+        예를들어 MemberQueryRepository를 인터페이스가 아닌 클래스로 만들고
+        스프링 빈으로 등록해서 그냥 직접 사용해도 된다.
+        물론 이 경우 스프링 데이터 JPA와는 아무런 관계 없이 별도로 동작한다.
+│                                                                      │
+┕──────────────────────────────────────────────────────────────────────┙
