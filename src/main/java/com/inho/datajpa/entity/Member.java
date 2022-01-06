@@ -1,5 +1,7 @@
 package com.inho.datajpa.entity;
 
+import com.inho.datajpa.entity.mappedsuperclass.BaseEntity;
+import com.inho.datajpa.entity.mappedsuperclass.JpaBaseEntity;
 import lombok.*;
 
 import javax.persistence.*;
@@ -15,7 +17,7 @@ import java.util.Objects;
 
 @NamedEntityGraph(name="Member.all", attributeNodes = {@NamedAttributeNode("team")} )
 
-public class Member
+public class Member extends BaseEntity
 {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MEMBER_ID_SEQ_GENERATOR")
